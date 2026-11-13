@@ -9,6 +9,9 @@
 <body>
 
     <h1>Bem-vindo, {{ request.user.username }}!</h1>
+    <a href="{% url 'categorias' %}">
+        Gerenciar Categorias
+    </a>
     <p>Sistema de Controle Financeiro Pessoal</p>
 
     <form method="post" action="{% url 'logout' %}">

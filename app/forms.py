@@ -18,3 +18,16 @@ class CadastroUsuarioForm(UserCreationForm):
             raise forms.ValidationError('Este e-mail já está cadastrado.')
 
         return email
+    
+
+from .models import Categoria
+
+
+class CategoriaForm(forms.ModelForm):
+    class Meta:
+        model = Categoria
+        fields = ['nome']
+        labels = {
+            'nome': 'Nome da categoria'
+        }
+

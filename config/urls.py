@@ -22,4 +22,12 @@ urlpatterns = [
     ),
 
     path('dashboard/', views.dashboard, name='dashboard'),
+
+    path('categorias/', views.categorias, name='categorias'),
+
+    path(
+    'categorias/excluir/<int:id>/',
+    views.excluir_categoria,
+    name='excluir_categoria'
+),
 ]
