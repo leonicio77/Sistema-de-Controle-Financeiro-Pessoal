@@ -44,22 +44,27 @@
         <div class="col-md-4">
             <div class="card p-3">
                 <h5>Saldo Atual</h5>
-                <h3>
-                    R$ {{ saldo|floatformat:2 }}
-                </h3>
+                <h3>R$ {{ saldo|floatformat:2 }}</h3>
             </div>
         </div>
 
     </div>
 
+    <!-- Gráfico de comparação mensal -->
+    <h4 class="mt-4">Comparação Financeira Mensal</h4>
 
-<h4 class="mt-4">Despesas por Categoria</h4>
-
-<div class="card p-4 mb-4">
-    <div style="max-width: 450px; margin: auto;">
-        <canvas id="graficoDespesas"></canvas>
+    <div class="card p-4 mb-4">
+        <canvas id="graficoMensal"></canvas>
     </div>
-</div>
+
+    <!-- Gráfico de despesas por categoria -->
+    <h4 class="mt-4">Despesas por Categoria</h4>
+
+    <div class="card p-4 mb-4">
+        <div style="max-width: 450px; margin: auto;">
+            <canvas id="graficoDespesas"></canvas>
+        </div>
+    </div>
 
     <h4>Gerenciamento</h4>
 
@@ -85,17 +90,18 @@
 
 </div>
 
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
 
+
 <script>
+    // Gráfico de despesas por categoria
     const categorias = {{ categorias_json|safe }};
     const valores = {{ valores_json|safe }};
 
-    const grafico = document.getElementById('graficoDespesas');
+    const graficoDespesas = document.getElementById('graficoDespesas');
 
     if (categorias.length > 0) {
-        new Chart(grafico, {
+        new Chart(graficoDespesas, {
             type: 'doughnut',
             data: {
                 labels: categorias,
@@ -122,13 +128,44 @@
             }
         });
     } else {
-        grafico.replaceWith(
-            document.createTextNode(
-                'Nenhuma despesa cadastrada.'
-            )
+        graficoDespesas.replaceWith(
+            document.createTextNode('Nenhuma despesa cadastrada.')
         );
     }
+
+    // Gráfico de comparação financeira mensal
+    const meses = {{ meses_json|safe }};
+    const receitasMensais = {{ receitas_mensais_json|safe }};
+    const despesasMensais = {{ despesas_mensais_json|safe }};
+
+    new Chart(document.getElementById('graficoMensal'), {
+        type: 'bar',
+        data: {
+            labels: meses,
+            datasets: [
+                {
+                    label: 'Receitas',
+                    data: receitasMensais,
+                    backgroundColor: '#198754'
+                },
+                {
+                    label: 'Despesas',
+                    data: despesasMensais,
+                    backgroundColor: '#dc3545'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
 </script>
+
 
 </body>
 </html>

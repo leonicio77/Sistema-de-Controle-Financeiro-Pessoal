@@ -1,14 +1,18 @@
-from django.db.models import Sum
-import json
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.db.models import Sum
+from django.utils import timezone
+
+from datetime import date
 from decimal import Decimal
+import json
 
 from .models import Categoria, Lancamento
 from .forms import CadastroUsuarioForm, CategoriaForm, LancamentoForm
+
 
 
 def cadastro(request):
@@ -28,6 +32,7 @@ def cadastro(request):
 
 
 
+
 @login_required(login_url='login')
 def dashboard(request):
     lancamentos = Lancamento.objects.filter(
@@ -44,6 +49,7 @@ def dashboard(request):
 
     saldo = total_receitas - total_despesas
 
+    # Gráfico de despesas por categoria
     despesas_categoria = (
         lancamentos.filter(tipo='despesa')
         .values('categoria__nome')
@@ -58,13 +64,61 @@ def dashboard(request):
         categorias.append(item['categoria__nome'])
         valores.append(float(item['total']))
 
+    # Comparação financeira dos últimos 6 meses
+    hoje = timezone.localdate()
+
+    meses = []
+    receitas_mensais = []
+    despesas_mensais = []
+
+    nomes_meses = [
+        'Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun',
+        'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'
+    ]
+
+    for i in range(5, -1, -1):
+        ano = hoje.year
+        mes = hoje.month - i
+
+        while mes <= 0:
+            mes += 12
+            ano -= 1
+
+        inicio = date(ano, mes, 1)
+
+        if mes == 12:
+            fim = date(ano + 1, 1, 1)
+        else:
+            fim = date(ano, mes + 1, 1)
+
+        movimentacoes_mes = lancamentos.filter(
+            data__gte=inicio,
+            data__lt=fim
+        )
+
+        receitas = movimentacoes_mes.filter(
+            tipo='receita'
+        ).aggregate(total=Sum('valor'))['total'] or Decimal('0.00')
+
+        despesas = movimentacoes_mes.filter(
+            tipo='despesa'
+        ).aggregate(total=Sum('valor'))['total'] or Decimal('0.00')
+
+        meses.append(f'{nomes_meses[mes - 1]}/{ano}')
+        receitas_mensais.append(float(receitas))
+        despesas_mensais.append(float(despesas))
+
     return render(request, 'dashboard.html', {
         'total_receitas': total_receitas,
         'total_despesas': total_despesas,
         'saldo': saldo,
         'categorias_json': json.dumps(categorias),
         'valores_json': json.dumps(valores),
+        'meses_json': json.dumps(meses),
+        'receitas_mensais_json': json.dumps(receitas_mensais),
+        'despesas_mensais_json': json.dumps(despesas_mensais),
     })
+
 
 
 
