@@ -52,6 +52,15 @@
 
     </div>
 
+
+<h4 class="mt-4">Despesas por Categoria</h4>
+
+<div class="card p-4 mb-4">
+    <div style="max-width: 450px; margin: auto;">
+        <canvas id="graficoDespesas"></canvas>
+    </div>
+</div>
+
     <h4>Gerenciamento</h4>
 
     <a href="{% url 'categorias' %}"
@@ -75,6 +84,51 @@
     </form>
 
 </div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+
+<script>
+    const categorias = {{ categorias_json|safe }};
+    const valores = {{ valores_json|safe }};
+
+    const grafico = document.getElementById('graficoDespesas');
+
+    if (categorias.length > 0) {
+        new Chart(grafico, {
+            type: 'doughnut',
+            data: {
+                labels: categorias,
+                datasets: [{
+                    label: 'Despesas por Categoria',
+                    data: valores,
+                    backgroundColor: [
+                        '#FF6384',
+                        '#36A2EB',
+                        '#FFCE56',
+                        '#4BC0C0',
+                        '#9966FF',
+                        '#FF9F40'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    } else {
+        grafico.replaceWith(
+            document.createTextNode(
+                'Nenhuma despesa cadastrada.'
+            )
+        );
+    }
+</script>
 
 </body>
 </html>

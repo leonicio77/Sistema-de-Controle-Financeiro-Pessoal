@@ -21,6 +21,19 @@ class Lancamento(models.Model):
         ('receita', 'Receita'),
         ('despesa', 'Despesa'),
     ]
+    FORMAS_PAGAMENTO = [
+    ('pix', 'Pix'),
+    ('dinheiro', 'Dinheiro'),
+    ('credito', 'Cartão de Crédito'),
+    ('debito', 'Cartão de Débito'),
+    ('transferencia', 'Transferência Bancária'),
+    ('outro', 'Outro'),
+]
+    forma_pagamento = models.CharField(
+    max_length=20,
+    choices=FORMAS_PAGAMENTO,
+    default='pix'
+)
 
     descricao = models.CharField(max_length=200)
 

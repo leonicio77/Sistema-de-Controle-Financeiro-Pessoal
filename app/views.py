@@ -1,3 +1,5 @@
+from django.db.models import Sum
+import json
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
@@ -20,10 +22,9 @@ def cadastro(request):
     else:
         form = CadastroUsuarioForm()
 
-    return render(request, 'cadastro.html', {'form': form})
-
-
-from django.contrib.auth.decorators import login_required
+    return render(request, 'cadastro.html', {
+        'form': form
+    })
 
 
 
@@ -43,11 +44,28 @@ def dashboard(request):
 
     saldo = total_receitas - total_despesas
 
+    despesas_categoria = (
+        lancamentos.filter(tipo='despesa')
+        .values('categoria__nome')
+        .annotate(total=Sum('valor'))
+        .order_by('categoria__nome')
+    )
+
+    categorias = []
+    valores = []
+
+    for item in despesas_categoria:
+        categorias.append(item['categoria__nome'])
+        valores.append(float(item['total']))
+
     return render(request, 'dashboard.html', {
         'total_receitas': total_receitas,
         'total_despesas': total_despesas,
         'saldo': saldo,
+        'categorias_json': json.dumps(categorias),
+        'valores_json': json.dumps(valores),
     })
+
 
 
 

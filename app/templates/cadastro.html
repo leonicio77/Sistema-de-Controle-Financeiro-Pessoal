@@ -16,6 +16,13 @@
         {% csrf_token %}
         {{ form.as_p }}
 
+        {% if form.errors %}
+        <div class="alert alert-danger">
+            <strong>Erro ao cadastrar:</strong>
+            {{ form.errors }}
+        </div>
+    {% endif %}        
+
         <button type="submit" class="btn btn-primary">
             Cadastrar
         </button>

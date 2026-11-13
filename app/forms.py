@@ -38,8 +38,14 @@ from .models import Lancamento
 class LancamentoForm(forms.ModelForm):
     class Meta:
         model = Lancamento
-        fields = ['descricao', 'valor', 'data', 'tipo', 'categoria']
-
+        fields = [
+    'descricao',
+    'valor',
+    'data',
+    'tipo',
+    'categoria',
+    'forma_pagamento'
+]
         widgets = {
             'data': forms.DateInput(
                 attrs={'type': 'date'},
