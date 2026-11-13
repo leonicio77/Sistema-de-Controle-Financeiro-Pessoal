@@ -30,4 +30,18 @@ urlpatterns = [
     views.excluir_categoria,
     name='excluir_categoria'
 ),
+
+    path('lancamentos/', views.lancamentos, name='lancamentos'),
+
+    path(
+    'lancamentos/editar/<int:id>/',
+    views.editar_lancamento,
+    name='editar_lancamento'
+),
+
+path(
+    'lancamentos/excluir/<int:id>/',
+    views.excluir_lancamento,
+    name='excluir_lancamento'
+),
 ]

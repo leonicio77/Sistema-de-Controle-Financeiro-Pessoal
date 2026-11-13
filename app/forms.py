@@ -31,3 +31,35 @@ class CategoriaForm(forms.ModelForm):
             'nome': 'Nome da categoria'
         }
 
+
+from .models import Lancamento
+
+
+class LancamentoForm(forms.ModelForm):
+    class Meta:
+        model = Lancamento
+        fields = ['descricao', 'valor', 'data', 'tipo', 'categoria']
+
+        widgets = {
+            'data': forms.DateInput(
+                attrs={'type': 'date'},
+                format='%Y-%m-%d'
+            ),
+            'valor': forms.NumberInput(
+                attrs={'step': '0.01', 'min': '0.01'}
+            ),
+        }
+
+    def __init__(self, *args, usuario=None, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['data'].input_formats = ['%Y-%m-%d']
+
+        if usuario is not None:
+            self.fields['categoria'].queryset = Categoria.objects.filter(
+                usuario=usuario
+            )
+        else:
+            self.fields['categoria'].queryset = Categoria.objects.none()
+
+
