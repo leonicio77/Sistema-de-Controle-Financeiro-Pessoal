@@ -123,6 +123,7 @@ def dashboard(request):
 
 
 
+
 @login_required(login_url='login')
 def categorias(request):
     if request.method == 'POST':
@@ -137,14 +138,31 @@ def categorias(request):
     else:
         form = CategoriaForm()
 
+    # Buscar categorias do usuário
     lista_categorias = Categoria.objects.filter(
         usuario=request.user
     ).order_by('nome')
+
+    # Identificar o mês e o ano atuais
+    hoje = timezone.localdate()
+
+    # Calcular os gastos de cada categoria no mês
+    for categoria in lista_categorias:
+        categoria.gasto_mes = Lancamento.objects.filter(
+            usuario=request.user,
+            categoria=categoria,
+            tipo='despesa',
+            data__year=hoje.year,
+            data__month=hoje.month
+        ).aggregate(
+            total=Sum('valor')
+        )['total'] or Decimal('0.00')
 
     return render(request, 'categorias.html', {
         'form': form,
         'categorias': lista_categorias
     })
+
 
 
 @login_required(login_url='login')

@@ -7,9 +7,20 @@ from decimal import Decimal
 
 class Categoria(models.Model):
     nome = models.CharField(max_length=100)
+
     usuario = models.ForeignKey(
         User,
         on_delete=models.CASCADE
+    )
+
+    limite_mensal = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        validators=[
+            MinValueValidator(Decimal('0.00'))
+        ]
     )
 
     def __str__(self):
@@ -21,19 +32,21 @@ class Lancamento(models.Model):
         ('receita', 'Receita'),
         ('despesa', 'Despesa'),
     ]
+
     FORMAS_PAGAMENTO = [
-    ('pix', 'Pix'),
-    ('dinheiro', 'Dinheiro'),
-    ('credito', 'Cartão de Crédito'),
-    ('debito', 'Cartão de Débito'),
-    ('transferencia', 'Transferência Bancária'),
-    ('outro', 'Outro'),
-]
+        ('pix', 'Pix'),
+        ('dinheiro', 'Dinheiro'),
+        ('credito', 'Cartão de Crédito'),
+        ('debito', 'Cartão de Débito'),
+        ('transferencia', 'Transferência Bancária'),
+        ('outro', 'Outro'),
+    ]
+
     forma_pagamento = models.CharField(
-    max_length=20,
-    choices=FORMAS_PAGAMENTO,
-    default='pix'
-)
+        max_length=20,
+        choices=FORMAS_PAGAMENTO,
+        default='pix'
+    )
 
     descricao = models.CharField(max_length=200)
 

@@ -3,6 +3,8 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
+from .models import Categoria, Lancamento
+
 
 class CadastroUsuarioForm(UserCreationForm):
     email = forms.EmailField(required=True)
@@ -18,34 +20,42 @@ class CadastroUsuarioForm(UserCreationForm):
             raise forms.ValidationError('Este e-mail já está cadastrado.')
 
         return email
-    
-
-from .models import Categoria
 
 
 class CategoriaForm(forms.ModelForm):
     class Meta:
         model = Categoria
-        fields = ['nome']
+        fields = ['nome', 'limite_mensal']
+
         labels = {
-            'nome': 'Nome da categoria'
+            'nome': 'Nome da categoria',
+            'limite_mensal': 'Limite mensal (R$) - Opcional'
         }
 
-
-from .models import Lancamento
+        widgets = {
+            'limite_mensal': forms.NumberInput(
+                attrs={
+                    'step': '0.01',
+                    'min': '0',
+                    'placeholder': 'Ex.: 500,00'
+                }
+            )
+        }
 
 
 class LancamentoForm(forms.ModelForm):
     class Meta:
         model = Lancamento
+
         fields = [
-    'descricao',
-    'valor',
-    'data',
-    'tipo',
-    'categoria',
-    'forma_pagamento'
-]
+            'descricao',
+            'valor',
+            'data',
+            'tipo',
+            'categoria',
+            'forma_pagamento'
+        ]
+
         widgets = {
             'data': forms.DateInput(
                 attrs={'type': 'date'},
@@ -67,5 +77,3 @@ class LancamentoForm(forms.ModelForm):
             )
         else:
             self.fields['categoria'].queryset = Categoria.objects.none()
-
-
