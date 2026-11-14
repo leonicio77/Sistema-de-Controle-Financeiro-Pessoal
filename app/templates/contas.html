@@ -1,0 +1,144 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Contas a Pagar e Receber</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+</head>
+
+<body class="bg-light">
+
+<div class="container mt-5">
+
+    <h2>Contas a Pagar e Receber</h2>
+    <p>Gerencie suas contas e acompanhe os vencimentos.</p>
+
+    <a href="{% url 'dashboard' %}"
+       class="btn btn-secondary mb-4">
+        Voltar ao Dashboard
+    </a>
+
+    <!-- Cadastro de contas -->
+    <div class="card p-4 mb-4">
+        <h4>Nova Conta</h4>
+
+        <form method="post">
+            {% csrf_token %}
+
+            {{ form.as_p }}
+
+            <button type="submit" class="btn btn-success">
+                Cadastrar Conta
+            </button>
+        </form>
+    </div>
+
+    <!-- Lista de contas -->
+    <h4>Minhas Contas</h4>
+
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>Descrição</th>
+                    <th>Tipo</th>
+                    <th>Valor</th>
+                    <th>Vencimento</th>
+                    <th>Situação</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for conta in contas %}
+                <tr>
+                    <td>{{ conta.descricao }}</td>
+
+                    <td>
+                        {{ conta.get_tipo_display }}
+                    </td>
+
+                    <td>
+                        R$ {{ conta.valor|floatformat:2 }}
+                    </td>
+
+                    <td>
+                        {{ conta.vencimento|date:"d/m/Y" }}
+                    </td>
+
+                    <td>
+                        {% if conta.status == 'concluida' %}
+                            <span class="badge bg-success">
+                                {% if conta.tipo == 'pagar' %}
+                                    Pago
+                                {% else %}
+                                    Recebido
+                                {% endif %}
+                            </span>
+
+                        {% elif conta.atrasada %}
+                            <span class="badge bg-danger">
+                                Atrasada
+                            </span>
+
+                        {% else %}
+                            <span class="badge bg-warning text-dark">
+                                Pendente
+                            </span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        <div class="d-flex gap-2">
+
+                            {% if conta.status == 'pendente' %}
+                            <form method="post"
+                                  action="{% url 'concluir_conta' conta.id %}">
+                                {% csrf_token %}
+
+                                <button type="submit"
+                                        class="btn btn-success btn-sm">
+                                    {% if conta.tipo == 'pagar' %}
+                                        Marcar como Pago
+                                    {% else %}
+                                        Marcar como Recebido
+                                    {% endif %}
+                                </button>
+                            </form>
+                            {% endif %}
+
+                            <form method="post"
+                                  action="{% url 'excluir_conta' conta.id %}">
+                                {% csrf_token %}
+
+                                <button type="submit"
+                                        class="btn btn-danger btn-sm"
+                                        onclick="return confirm('Deseja excluir esta conta?')">
+                                    Excluir
+                                </button>
+                            </form>
+
+                        </div>
+                    </td>
+                </tr>
+
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center">
+                        Nenhuma conta cadastrada.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+</body>
+</html>

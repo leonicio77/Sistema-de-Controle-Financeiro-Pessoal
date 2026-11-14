@@ -3,7 +3,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
-from .models import Categoria, Lancamento
+from .models import Categoria, Lancamento, Conta
 
 
 class CadastroUsuarioForm(UserCreationForm):
@@ -77,3 +77,42 @@ class LancamentoForm(forms.ModelForm):
             )
         else:
             self.fields['categoria'].queryset = Categoria.objects.none()
+
+
+class ContaForm(forms.ModelForm):
+    class Meta:
+        model = Conta
+
+        fields = [
+            'descricao',
+            'tipo',
+            'valor',
+            'vencimento'
+        ]
+
+        labels = {
+            'descricao': 'Descrição da conta',
+            'tipo': 'Tipo de conta',
+            'valor': 'Valor (R$)',
+            'vencimento': 'Data de vencimento'
+        }
+
+        widgets = {
+            'valor': forms.NumberInput(
+                attrs={
+                    'step': '0.01',
+                    'min': '0.01'
+                }
+            ),
+            'vencimento': forms.DateInput(
+                attrs={'type': 'date'},
+                format='%Y-%m-%d'
+            )
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['vencimento'].input_formats = ['%Y-%m-%d']
+
+

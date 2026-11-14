@@ -10,8 +10,8 @@ from datetime import date
 from decimal import Decimal
 import json
 
-from .models import Categoria, Lancamento
-from .forms import CadastroUsuarioForm, CategoriaForm, LancamentoForm
+from .models import Categoria, Lancamento, Conta
+from .forms import CadastroUsuarioForm, CategoriaForm, LancamentoForm, ContaForm
 
 
 
@@ -280,6 +280,69 @@ def excluir_lancamento(request, id):
     lancamento.delete()
 
     return redirect('lancamentos')
+
+
+@login_required(login_url='login')
+def contas(request):
+    if request.method == 'POST':
+        form = ContaForm(request.POST)
+
+        if form.is_valid():
+            conta = form.save(commit=False)
+            conta.usuario = request.user
+            conta.save()
+
+            return redirect('contas')
+    else:
+        form = ContaForm()
+
+    lista_contas = Conta.objects.filter(
+        usuario=request.user
+    ).order_by('vencimento')
+
+    hoje = timezone.localdate()
+
+    for conta in lista_contas:
+        conta.atrasada = (
+            conta.status == 'pendente'
+            and conta.vencimento < hoje
+        )
+
+    return render(request, 'contas.html', {
+        'form': form,
+        'contas': lista_contas
+    })
+
+
+@login_required(login_url='login')
+@require_POST
+def concluir_conta(request, id):
+    conta = get_object_or_404(
+        Conta,
+        id=id,
+        usuario=request.user
+    )
+
+    if conta.status == 'pendente':
+        conta.status = 'concluida'
+        conta.save(update_fields=['status'])
+
+    return redirect('contas')
+
+
+@login_required(login_url='login')
+@require_POST
+def excluir_conta(request, id):
+    conta = get_object_or_404(
+        Conta,
+        id=id,
+        usuario=request.user
+    )
+
+    conta.delete()
+
+    return redirect('contas')
+
 
 
 

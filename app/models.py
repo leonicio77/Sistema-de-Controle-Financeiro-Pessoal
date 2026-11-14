@@ -77,3 +77,47 @@ class Lancamento(models.Model):
 
     def __str__(self):
         return self.descricao
+
+    
+class Conta(models.Model):
+    TIPOS = [
+        ('pagar', 'A pagar'),
+        ('receber', 'A receber'),
+    ]
+
+    STATUS = [
+        ('pendente', 'Pendente'),
+        ('concluida', 'Concluída'),
+    ]
+
+    descricao = models.CharField(max_length=200)
+
+    tipo = models.CharField(
+        max_length=10,
+        choices=TIPOS
+    )
+
+    valor = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        validators=[
+            MinValueValidator(Decimal('0.01'))
+        ]
+    )
+
+    vencimento = models.DateField()
+
+    status = models.CharField(
+        max_length=10,
+        choices=STATUS,
+        default='pendente'
+    )
+
+    usuario = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE
+    )
+
+    def __str__(self):
+        return self.descricao
+
