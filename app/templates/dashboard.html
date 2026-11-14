@@ -50,6 +50,41 @@
 
     </div>
 
+<!-- Alertas de limite mensal -->
+{% if alertas_limite %}
+
+    <h4 class="mt-4">Alertas Financeiros</h4>
+
+    {% for categoria in alertas_limite %}
+        <div class="alert alert-danger" role="alert">
+
+            <h5 class="alert-heading">
+                ⚠️ Atenção! Limite mensal ultrapassado
+            </h5>
+
+            <p class="mb-2">
+                Você ultrapassou o limite da categoria
+                <strong>{{ categoria.nome }}</strong>
+                em
+                <strong>
+                    R$ {{ categoria.valor_ultrapassado|floatformat:2 }}
+                </strong>.
+            </p>
+
+            <p class="mb-0">
+                Limite mensal:
+                R$ {{ categoria.limite_mensal|floatformat:2 }}
+                |
+                Gasto no mês:
+                R$ {{ categoria.gasto_mes|floatformat:2 }}
+            </p>
+
+        </div>
+    {% endfor %}
+
+{% endif %}
+
+
     <!-- Gráfico de comparação mensal -->
     <h4 class="mt-4">Comparação Financeira Mensal</h4>
 

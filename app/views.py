@@ -49,6 +49,35 @@ def dashboard(request):
 
     saldo = total_receitas - total_despesas
 
+    # Alertas de limite mensal no Dashboard
+    hoje = timezone.localdate()
+
+    categorias_com_limite = Categoria.objects.filter(
+        usuario=request.user,
+        limite_mensal__isnull=False
+    )
+
+    alertas_limite = []
+
+    for categoria in categorias_com_limite:
+        gasto_mes = lancamentos.filter(
+            categoria=categoria,
+            tipo='despesa',
+            data__year=hoje.year,
+            data__month=hoje.month
+        ).aggregate(
+            total=Sum('valor')
+        )['total'] or Decimal('0.00')
+
+        if gasto_mes > categoria.limite_mensal:
+            categoria.gasto_mes = gasto_mes
+            categoria.valor_ultrapassado = (
+                gasto_mes - categoria.limite_mensal
+            )
+
+            alertas_limite.append(categoria)
+
+
     # Gráfico de despesas por categoria
     despesas_categoria = (
         lancamentos.filter(tipo='despesa')
@@ -117,7 +146,9 @@ def dashboard(request):
         'meses_json': json.dumps(meses),
         'receitas_mensais_json': json.dumps(receitas_mensais),
         'despesas_mensais_json': json.dumps(despesas_mensais),
+        'alertas_limite': alertas_limite,
     })
+
 
 
 
@@ -138,15 +169,14 @@ def categorias(request):
     else:
         form = CategoriaForm()
 
-    # Buscar categorias do usuário
     lista_categorias = Categoria.objects.filter(
         usuario=request.user
     ).order_by('nome')
 
-    # Identificar o mês e o ano atuais
     hoje = timezone.localdate()
 
-    # Calcular os gastos de cada categoria no mês
+    alertas_limite = []
+
     for categoria in lista_categorias:
         categoria.gasto_mes = Lancamento.objects.filter(
             usuario=request.user,
@@ -158,9 +188,38 @@ def categorias(request):
             total=Sum('valor')
         )['total'] or Decimal('0.00')
 
+        categoria.porcentagem = 0
+        categoria.valor_ultrapassado = Decimal('0.00')
+        categoria.cor_progresso = 'success'
+
+        if categoria.limite_mensal is not None:
+            limite = categoria.limite_mensal
+
+            if limite > 0:
+                porcentagem = (
+                    categoria.gasto_mes / limite
+                ) * 100
+
+                categoria.porcentagem = round(
+                    float(porcentagem), 1
+                )
+
+            if categoria.gasto_mes >= limite:
+                categoria.cor_progresso = 'danger'
+            elif categoria.porcentagem >= 80:
+                categoria.cor_progresso = 'warning'
+
+            if categoria.gasto_mes > limite:
+                categoria.valor_ultrapassado = (
+                    categoria.gasto_mes - limite
+                )
+
+                alertas_limite.append(categoria)
+
     return render(request, 'categorias.html', {
         'form': form,
-        'categorias': lista_categorias
+        'categorias': lista_categorias,
+        'alertas_limite': alertas_limite
     })
 
 

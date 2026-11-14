@@ -21,6 +21,29 @@
         Voltar ao Dashboard
     </a>
 
+    <!-- Alertas de limite ultrapassado -->
+    {% for categoria in alertas_limite %}
+    <div class="alert alert-danger" role="alert">
+        <h5 class="alert-heading">
+            ⚠️ Atenção! Limite mensal ultrapassado
+        </h5>
+
+        Você ultrapassou o limite da categoria
+        <strong>{{ categoria.nome }}</strong>
+        em
+        <strong>
+            R$ {{ categoria.valor_ultrapassado|floatformat:2 }}
+        </strong>.
+
+        <div class="mt-2">
+            Limite: R$ {{ categoria.limite_mensal|floatformat:2 }}
+            |
+            Gasto: R$ {{ categoria.gasto_mes|floatformat:2 }}
+        </div>
+    </div>
+    {% endfor %}
+
+    <!-- Cadastro -->
     <div class="card p-4 mb-4">
         <h4>Nova Categoria</h4>
 
@@ -66,23 +89,43 @@
                         R$ {{ categoria.gasto_mes|floatformat:2 }}
                     </td>
 
-                    <td>
+                    <td style="min-width: 220px;">
+
                         {% if categoria.limite_mensal == None %}
                             <span class="badge bg-secondary">
                                 Sem limite
                             </span>
-                        {% elif categoria.gasto_mes > categoria.limite_mensal %}
-                            <span class="badge bg-danger">
-                                Limite ultrapassado
-                            </span>
-                        {% elif categoria.gasto_mes == categoria.limite_mensal %}
-                            <span class="badge bg-warning text-dark">
-                                Limite atingido
-                            </span>
                         {% else %}
-                            <span class="badge bg-success">
-                                Dentro do limite
-                            </span>
+
+                            {% if categoria.gasto_mes > categoria.limite_mensal %}
+                                <span class="badge bg-danger">
+                                    Limite ultrapassado
+                                </span>
+                            {% elif categoria.gasto_mes == categoria.limite_mensal %}
+                                <span class="badge bg-danger">
+                                    Limite atingido
+                                </span>
+                            {% elif categoria.porcentagem >= 80 %}
+                                <span class="badge bg-warning text-dark">
+                                    Próximo do limite
+                                </span>
+                            {% else %}
+                                <span class="badge bg-success">
+                                    Dentro do limite
+                                </span>
+                            {% endif %}
+
+                            <div class="progress mt-2" style="height: 12px;">
+                                <div class="progress-bar bg-{{ categoria.cor_progresso }}"
+                                     role="progressbar"
+                                     style="width: {% if categoria.porcentagem > 100 %}100{% else %}{{ categoria.porcentagem|stringformat:'.0f' }}{% endif %}%;">
+                                </div>
+                            </div>
+
+                            <small class="text-muted">
+                                {{ categoria.porcentagem|floatformat:1 }}% utilizado
+                            </small>
+
                         {% endif %}
                     </td>
 
