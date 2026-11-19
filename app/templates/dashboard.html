@@ -3,209 +3,302 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>Dashboard Financeiro</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-          rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f4f7f5;
+            font-family: Arial, sans-serif;
+        }
+
+        .topo {
+            background-color: #198754;
+            color: white;
+            padding: 25px 0;
+            margin-bottom: 30px;
+        }
+        .card-resumo {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+    padding: 22px;
+    height: 100%;
+    border-top: 4px solid transparent;
+    transition: transform 0.2s;
+}
+
+.card-resumo:hover {
+    transform: translateY(-4px);
+}
+
+.card-receitas {
+    border-top-color: #198754;
+}
+
+.card-despesas {
+    border-top-color: #dc3545;
+}
+
+.card-saldo {
+    border-top-color: #0d6efd;
+}
+}
+
+.card-resumo:hover {
+    transform: translateY(-4px);
+}
+
+.card-receitas {
+    border-top-color: #198754;
+}
+
+.card-despesas {
+    border-top-color: #dc3545;
+}
+
+.card-saldo {
+    border-top-color: #0d6efd;
+}
+
+        .card-resumo h6 {
+            color: #6c757d;
+            margin-bottom: 12px;
+        }
+
+        .card-resumo h3 {
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .card-grafico {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+            padding: 25px;
+            height: 100%;
+            background-color: white;
+        }
+
+        .card-grafico h5 {
+            color: #343a40;
+            font-weight: 600;
+            font-size: 17px;
+            margin-bottom: 25px;
+        }
+
+        .titulo-secao {
+           font-weight: 600;
+           color: #343a40;
+           margin-bottom: 20px;
+           padding-bottom: 10px;
+           border-bottom: 2px solid #e9ecef;
+        }
+        .botao-gerenciamento {
+           border-radius: 10px;
+           padding: 18px 12px;
+           font-weight: 600;
+           font-size: 15px;
+           transition: 0.2s;
+        }
+
+        .botao-gerenciamento:hover {
+           transform: translateY(-3px);
+           box-shadow: 0 4px 10px rgba(0,0,0,0.10);
+        }
+    </style>
 </head>
 
-<body class="bg-light">
+<body>
 
-<div class="container mt-5">
-
-    <h2>Bem-vindo, {{ request.user.username }}!</h2>
-    <p>Sistema de Controle Financeiro Pessoal</p>
-
-    <h4 class="mt-4">Resumo Financeiro</h4>
-
-    <div class="row g-3 mb-4">
-
-        <div class="col-md-4">
-            <div class="card p-3">
-                <h5>Total de Receitas</h5>
-                <h3 class="text-success">
-                    R$ {{ total_receitas|floatformat:2 }}
-                </h3>
+    <header class="topo">
+        <div class="container d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h3 class="mb-1">Controle Financeiro</h3>
+                <p class="mb-0">Bem-vindo, {{ request.user.username }}!</p>
             </div>
+
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-light">
+                    Sair
+                </button>
+            </form>
+        </div>
+    </header>
+
+    <main class="container pb-5">
+
+        <h4 class="titulo-secao">Resumo Financeiro</h4>
+
+        <div class="row g-4 mb-5">
+
+            <div class="col-md-4">
+                <div class="card-resumo bg-white card-receitas">
+                    <h6>Total de Receitas</h6>
+                    <h3 class="text-success">
+                        R$ {{ total_receitas|floatformat:2 }}
+                    </h3>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card-resumo bg-white card-despesas">
+                    <h6>Total de Despesas</h6>
+                    <h3 class="text-danger">
+                        R$ {{ total_despesas|floatformat:2 }}
+                    </h3>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card-resumo bg-white card-saldo">
+                    <h6>Saldo Atual</h6>
+                    <h3 class="{% if saldo < 0 %}text-danger{% else %}text-primary{% endif %}">
+                        R$ {{ saldo|floatformat:2 }}
+                    </h3>
+                </div>
+            </div>
+
         </div>
 
-        <div class="col-md-4">
-            <div class="card p-3">
-                <h5>Total de Despesas</h5>
-                <h3 class="text-danger">
-                    R$ {{ total_despesas|floatformat:2 }}
-                </h3>
+        {% if alertas_limite %}
+            <h4 class="titulo-secao">Avisos de Limite de Gastos</h4>
+
+            {% for categoria in alertas_limite %}
+                <div class="alert alert-warning">
+                    <strong>{{ categoria.nome }}</strong> ultrapassou o limite mensal em
+                    R$ {{ categoria.valor_ultrapassado|floatformat:2 }}.
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <h4 class="titulo-secao mt-5">Análise Financeira</h4>
+
+        <div class="row g-4 mb-5">
+
+            <div class="col-lg-7">
+                <div class="card-grafico bg-white">
+                    <h5 class="mb-4">Comparação Financeira Mensal</h5>
+                    <canvas id="graficoMensal"></canvas>
+                </div>
             </div>
+
+            <div class="col-lg-5">
+                <div class="card-grafico bg-white">
+                    <h5 class="mb-4">Despesas por Categoria</h5>
+                    <div style="max-width: 400px; margin: auto;">
+                        <canvas id="graficoDespesas"></canvas>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
-        <div class="col-md-4">
-            <div class="card p-3">
-                <h5>Saldo Atual</h5>
-                <h3>R$ {{ saldo|floatformat:2 }}</h3>
-            </div>
-        </div>
+        <h4 class="titulo-secao">Gerenciamento</h4>
 
+        <div class="row g-4 mb-4">
+
+            <div class="col-md-4">
+            <a href="{% url 'categorias' %}"
+           class="btn btn-outline-success w-100 botao-gerenciamento">
+            Gerenciar Categorias
+        </a>
     </div>
 
-<!-- Alertas de limite mensal -->
-{% if alertas_limite %}
-
-    <h4 class="mt-4">Alertas Financeiros</h4>
-
-    {% for categoria in alertas_limite %}
-        <div class="alert alert-danger" role="alert">
-
-            <h5 class="alert-heading">
-                ⚠️ Atenção! Limite mensal ultrapassado
-            </h5>
-
-            <p class="mb-2">
-                Você ultrapassou o limite da categoria
-                <strong>{{ categoria.nome }}</strong>
-                em
-                <strong>
-                    R$ {{ categoria.valor_ultrapassado|floatformat:2 }}
-                </strong>.
-            </p>
-
-            <p class="mb-0">
-                Limite mensal:
-                R$ {{ categoria.limite_mensal|floatformat:2 }}
-                |
-                Gasto no mês:
-                R$ {{ categoria.gasto_mes|floatformat:2 }}
-            </p>
-
-        </div>
-    {% endfor %}
-
-{% endif %}
-
-
-    <!-- Gráfico de comparação mensal -->
-    <h4 class="mt-4">Comparação Financeira Mensal</h4>
-
-    <div class="card p-4 mb-4">
-        <canvas id="graficoMensal"></canvas>
+    <div class="col-md-4">
+        <a href="{% url 'lancamentos' %}"
+           class="btn btn-outline-success w-100 botao-gerenciamento">
+            Receitas e Despesas
+        </a>
     </div>
 
-    <!-- Gráfico de despesas por categoria -->
-    <h4 class="mt-4">Despesas por Categoria</h4>
-
-    <div class="card p-4 mb-4">
-        <div style="max-width: 450px; margin: auto;">
-            <canvas id="graficoDespesas"></canvas>
-        </div>
+    <div class="col-md-4">
+        <a href="{% url 'contas' %}"
+           class="btn btn-outline-success w-100 botao-gerenciamento">
+            Contas a Pagar e Receber
+        </a>
     </div>
-
-    <h4>Gerenciamento</h4>
-
-    <a href="{% url 'categorias' %}"
-       class="btn btn-primary mb-3">
-        Gerenciar Categorias
-    </a>
-
-    <a href="{% url 'lancamentos' %}"
-       class="btn btn-success mb-3">
-        Gerenciar Receitas e Despesas
-    </a>
-
-    <a href="{% url 'contas' %}"
-       class="btn btn-warning mb-3">
-        Contas a Pagar e Receber
-    </a>
-
-    <hr>
-
-    <form method="post" action="{% url 'logout' %}">
-        {% csrf_token %}
-
-        <button type="submit" class="btn btn-danger">
-            Sair
-        </button>
-    </form>
 
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    </main>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
 
-<script>
-    // Gráfico de despesas por categoria
-    const categorias = {{ categorias_json|safe }};
-    const valores = {{ valores_json|safe }};
+    <script>
+        const categorias = {{ categorias_json|safe }};
+        const valores = {{ valores_json|safe }};
 
-    const graficoDespesas = document.getElementById('graficoDespesas');
+        const graficoDespesas = document.getElementById('graficoDespesas');
 
-    if (categorias.length > 0) {
-        new Chart(graficoDespesas, {
-            type: 'doughnut',
+        if (categorias.length > 0) {
+            new Chart(graficoDespesas, {
+                type: 'doughnut',
+                data: {
+                    labels: categorias,
+                    datasets: [{
+                        label: 'Despesas por Categoria',
+                        data: valores,
+                        backgroundColor: [
+                            '#198754',
+                            '#36A2EB',
+                            '#FFCE56',
+                            '#FF6384',
+                            '#9966FF',
+                            '#FF9F40'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        } else {
+            graficoDespesas.replaceWith(
+                document.createTextNode('Nenhuma despesa cadastrada.')
+            );
+        }
+
+        const meses = {{ meses_json|safe }};
+        const receitasMensais = {{ receitas_mensais_json|safe }};
+        const despesasMensais = {{ despesas_mensais_json|safe }};
+
+        new Chart(document.getElementById('graficoMensal'), {
+            type: 'bar',
             data: {
-                labels: categorias,
-                datasets: [{
-                    label: 'Despesas por Categoria',
-                    data: valores,
-                    backgroundColor: [
-                        '#FF6384',
-                        '#36A2EB',
-                        '#FFCE56',
-                        '#4BC0C0',
-                        '#9966FF',
-                        '#FF9F40'
-                    ]
-                }]
+                labels: meses,
+                datasets: [
+                    {
+                        label: 'Receitas',
+                        data: receitasMensais,
+                        backgroundColor: '#198754'
+                    },
+                    {
+                        label: 'Despesas',
+                        data: despesasMensais,
+                        backgroundColor: '#dc3545'
+                    }
+                ]
             },
             options: {
                 responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'bottom'
+                scales: {
+                    y: {
+                        beginAtZero: true
                     }
                 }
             }
         });
-    } else {
-        graficoDespesas.replaceWith(
-            document.createTextNode('Nenhuma despesa cadastrada.')
-        );
-    }
-
-    // Gráfico de comparação financeira mensal
-    const meses = {{ meses_json|safe }};
-    const receitasMensais = {{ receitas_mensais_json|safe }};
-    const despesasMensais = {{ despesas_mensais_json|safe }};
-
-    new Chart(document.getElementById('graficoMensal'), {
-        type: 'bar',
-        data: {
-            labels: meses,
-            datasets: [
-                {
-                    label: 'Receitas',
-                    data: receitasMensais,
-                    backgroundColor: '#198754'
-                },
-                {
-                    label: 'Despesas',
-                    data: despesasMensais,
-                    backgroundColor: '#dc3545'
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
-        }
-    });
-</script>
-
+    </script>
 
 </body>
 </html>
