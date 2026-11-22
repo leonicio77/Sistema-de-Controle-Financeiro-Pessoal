@@ -109,6 +109,56 @@
            transform: translateY(-3px);
            box-shadow: 0 4px 10px rgba(0,0,0,0.10);
         }
+
+.alerta-limite {
+    border: none;
+    border-left: 5px solid #ffc107;
+    border-radius: 8px;
+    background-color: #fff8e1;
+    padding: 16px 20px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    margin-bottom: 12px;
+} 
+
+.topo h3 {
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+.topo p {
+    opacity: 0.9;
+    font-size: 15px;
+}
+
+.topo {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+}
+
+@media (max-width: 768px) {
+    .topo {
+        padding: 20px 0;
+    }
+
+    .topo h3 {
+        font-size: 22px;
+    }
+
+    .card-resumo {
+        padding: 18px;
+    }
+
+    .card-grafico {
+        padding: 18px;
+    }
+
+    .card-grafico canvas {
+        max-width: 100%;
+    }
+
+    .titulo-secao {
+        font-size: 20px;
+    }
+}
     </style>
 </head>
 
@@ -169,7 +219,7 @@
             <h4 class="titulo-secao">Avisos de Limite de Gastos</h4>
 
             {% for categoria in alertas_limite %}
-                <div class="alert alert-warning">
+                <div class="alerta-limite">
                     <strong>{{ categoria.nome }}</strong> ultrapassou o limite mensal em
                     R$ {{ categoria.valor_ultrapassado|floatformat:2 }}.
                 </div>
