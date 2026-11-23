@@ -11,13 +11,16 @@
 
 <body class="bg-light">
 
-<div class="container mt-5">
+<div class="layout-principal">
+
+    {% include 'menu_lateral.html' %}
+
+    <main class="conteudo-principal">
+
+        <div class="container-fluid">
 
     <h2>Lançamentos Financeiros</h2>
 
-    <a href="{% url 'dashboard' %}" class="btn btn-secondary mb-4">
-        Voltar ao Dashboard
-    </a>
 
     <div class="card p-4 mb-4">
         <h4>Novo Lançamento</h4>
@@ -156,6 +159,10 @@
 </table>
 
     </div>
+
+        </div>
+
+    </main>
 
 </div>
 
