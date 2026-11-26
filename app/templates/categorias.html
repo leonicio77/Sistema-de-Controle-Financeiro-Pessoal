@@ -10,75 +10,131 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
           rel="stylesheet">
 
-<style>
-    body {
-        background-color: #f4f7f5;
-        font-family: Arial, sans-serif;
-    }
-
-    .topo {
-        background-color: #198754;
-        color: white;
-        padding: 25px 0;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.10);
-        margin-bottom: 30px;
-    }
-
-    .card-padrao {
-        border: none;
-        border-radius: 12px;
-        box-shadow: 0 3px 10px rgba(0,0,0,0.06);
-    }
-
-    .titulo-secao {
-        font-weight: 600;
-        color: #343a40;
-        margin-bottom: 20px;
-        padding-bottom: 10px;
-        border-bottom: 2px solid #e9ecef;
-    }
-
-    .tabela-categorias {
-        background-color: white;
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 3px 10px rgba(0,0,0,0.06);
-    }
-
-    .tabela-categorias thead th {
-        background-color: #e9f5ee;
-        color: #198754;
-        font-weight: 600;
-        padding: 15px;
-    }
-
-    .tabela-categorias tbody td {
-        padding: 14px 15px;
-    }
-
-    .alerta-limite {
-        border: none;
-        border-left: 5px solid #dc3545;
-        border-radius: 8px;
-        background-color: #fff1f2;
-        padding: 18px 20px;
-        margin-bottom: 15px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.04);
-    }
-
-    @media (max-width: 768px) {
-        .topo {
-            padding: 20px 0;
+    <style>
+        body {
+            background-color: #f4f7f5;
+            font-family: Arial, sans-serif;
+            color: #343a40;
         }
 
-        .topo h3 {
-            font-size: 22px;
+        .conteudo-principal {
+            padding: 30px;
         }
-    }
-</style>          
+
+        .titulo-pagina {
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .subtitulo-pagina {
+            color: #6c757d;
+            margin-bottom: 28px;
+        }
+
+        .card-padrao {
+            border: none;
+            border-radius: 14px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.05);
+            background-color: white;
+        }
+
+        .titulo-secao {
+            font-size: 19px;
+            font-weight: 600;
+            margin-bottom: 22px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .form-control {
+            padding: 11px 13px;
+            border-radius: 8px;
+        }
+
+        .form-control:focus {
+            border-color: #198754;
+            box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.12);
+        }
+
+        .btn-success {
+            border-radius: 8px;
+            padding: 10px 22px;
+            font-weight: 600;
+        }
+
+        .tabela-categorias {
+            background-color: white;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .tabela-categorias table {
+            margin-bottom: 0;
+        }
+
+        .tabela-categorias thead th {
+            background-color: #e9f5ee;
+            color: #198754;
+            font-weight: 600;
+            padding: 16px;
+            white-space: nowrap;
+        }
+
+        .tabela-categorias tbody td {
+            padding: 17px 16px;
+            vertical-align: middle;
+        }
+
+        .tabela-categorias tbody tr:hover {
+            background-color: #f8fbf9;
+        }
+
+        .badge {
+            font-weight: 500;
+            padding: 7px 10px;
+            border-radius: 6px;
+        }
+
+        .progress {
+            border-radius: 10px;
+            background-color: #e9ecef;
+        }
+
+        .progress-bar {
+            border-radius: 10px;
+        }
+
+        .alerta-limite {
+            border: none;
+            border-left: 5px solid #dc3545;
+            border-radius: 10px;
+            background-color: #fff1f2;
+            padding: 18px 20px;
+            margin-bottom: 18px;
+        }
+
+        .secao-categorias {
+            margin-top: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .conteudo-principal {
+                padding: 18px;
+            }
+
+            .tabela-categorias {
+                font-size: 14px;
+            }
+        }
+    </style>
 </head>
 
-<body class="bg-light">
+<body>
 
 <div class="layout-principal">
 
@@ -88,138 +144,181 @@
 
         <div class="container-fluid">
 
-    <!-- Alertas de limite ultrapassado -->
-    {% for categoria in alertas_limite %}
-    <div class="alert alert-danger" role="alert">
-        <h5 class="alert-heading">
-            ⚠️ Atenção! Limite mensal ultrapassado
-        </h5>
+            <h2 class="titulo-pagina">Categorias</h2>
+            <p class="subtitulo-pagina">
+                Organize suas categorias e acompanhe seus limites de gastos.
+            </p>
 
-        Você ultrapassou o limite da categoria
-        <strong>{{ categoria.nome }}</strong>
-        em
-        <strong>
-            R$ {{ categoria.valor_ultrapassado|floatformat:2 }}
-        </strong>.
+            <!-- Alertas de limite ultrapassado -->
+            {% for categoria in alertas_limite %}
+            <div class="alerta-limite" role="alert">
+                <h5 class="alert-heading">
+                    ⚠️ Atenção! Limite mensal ultrapassado
+                </h5>
 
-        <div class="mt-2">
-            Limite: R$ {{ categoria.limite_mensal|floatformat:2 }}
-            |
-            Gasto: R$ {{ categoria.gasto_mes|floatformat:2 }}
-        </div>
-    </div>
-    {% endfor %}
+                Você ultrapassou o limite da categoria
+                <strong>{{ categoria.nome }}</strong>
+                em
+                <strong>
+                    R$ {{ categoria.valor_ultrapassado|floatformat:2 }}
+                </strong>.
 
-    <!-- Cadastro -->
-    <div class="card card-padrao p-4 mb-4">
-    <h4 class="titulo-secao">Nova Categoria</h4>
+                <div class="mt-2">
+                    Limite: R$ {{ categoria.limite_mensal|floatformat:2 }}
+                    |
+                    Gasto: R$ {{ categoria.gasto_mes|floatformat:2 }}
+                </div>
+            </div>
+            {% endfor %}
 
-        <form method="post">
-            {% csrf_token %}
+            <!-- Cadastro de categoria -->
+            <div class="card card-padrao p-4 mb-4">
 
-            {{ form.as_p }}
+                <h4 class="titulo-secao">Nova Categoria</h4>
 
-            <button type="submit" class="btn btn-success">
-                Cadastrar
-            </button>
-        </form>
-    </div>
+                <form method="post">
+                    {% csrf_token %}
 
-    <h4>Minhas Categorias</h4>
+                    {{ form.as_p }}
 
-    <div class="table-responsive">
-        <table class="table table-striped align-middle">
-            <thead>
-                <tr>
-                    <th>Nome</th>
-                    <th>Limite Mensal</th>
-                    <th>Gasto no Mês</th>
-                    <th>Situação</th>
-                    <th>Ações</th>
-                </tr>
-            </thead>
+                    <button type="submit" class="btn btn-success">
+                        Cadastrar Categoria
+                    </button>
+                </form>
 
-            <tbody>
-                {% for categoria in categorias %}
-                <tr>
-                    <td>{{ categoria.nome }}</td>
+            </div>
 
-                    <td>
-                        {% if categoria.limite_mensal != None %}
-                            R$ {{ categoria.limite_mensal|floatformat:2 }}
-                        {% else %}
-                            Sem limite
-                        {% endif %}
-                    </td>
+            <!-- Lista de categorias -->
+            <div class="card card-padrao p-4 secao-categorias">
 
-                    <td>
-                        R$ {{ categoria.gasto_mes|floatformat:2 }}
-                    </td>
+                <h4 class="titulo-secao">Minhas Categorias</h4>
 
-                    <td style="min-width: 220px;">
+                <div class="table-responsive tabela-categorias">
 
-                        {% if categoria.limite_mensal == None %}
-                            <span class="badge bg-secondary">
-                                Sem limite
-                            </span>
-                        {% else %}
+                    <table class="table table-striped align-middle">
 
-                            {% if categoria.gasto_mes > categoria.limite_mensal %}
-                                <span class="badge bg-danger">
-                                    Limite ultrapassado
-                                </span>
-                            {% elif categoria.gasto_mes == categoria.limite_mensal %}
-                                <span class="badge bg-danger">
-                                    Limite atingido
-                                </span>
-                            {% elif categoria.porcentagem >= 80 %}
-                                <span class="badge bg-warning text-dark">
-                                    Próximo do limite
-                                </span>
-                            {% else %}
-                                <span class="badge bg-success">
-                                    Dentro do limite
-                                </span>
-                            {% endif %}
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Limite Mensal</th>
+                                <th>Gasto no Mês</th>
+                                <th>Situação</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
 
-                            <div class="progress mt-2" style="height: 12px;">
-                                <div class="progress-bar bg-{{ categoria.cor_progresso }}"
-                                     role="progressbar"
-                                     style="width: {% if categoria.porcentagem > 100 %}100{% else %}{{ categoria.porcentagem|stringformat:'.0f' }}{% endif %}%;">
-                                </div>
-                            </div>
+                        <tbody>
 
-                            <small class="text-muted">
-                                {{ categoria.porcentagem|floatformat:1 }}% utilizado
-                            </small>
+                            {% for categoria in categorias %}
 
-                        {% endif %}
-                    </td>
+                            <tr>
 
-                    <td>
-                        <form method="post"
-                              action="{% url 'excluir_categoria' categoria.id %}">
-                            {% csrf_token %}
+                                <td>
+                                    <strong>{{ categoria.nome }}</strong>
+                                </td>
 
-                            <button type="submit"
-                                    class="btn btn-danger btn-sm"
-                                    onclick="return confirm('Deseja excluir esta categoria?')">
-                                Excluir
-                            </button>
-                        </form>
-                    </td>
-                </tr>
+                                <td>
+                                    {% if categoria.limite_mensal != None %}
+                                        R$ {{ categoria.limite_mensal|floatformat:2 }}
+                                    {% else %}
+                                        <span class="text-muted">Sem limite</span>
+                                    {% endif %}
+                                </td>
 
-                {% empty %}
-                <tr>
-                    <td colspan="5">
-                        Nenhuma categoria cadastrada.
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+                                <td>
+                                    R$ {{ categoria.gasto_mes|floatformat:2 }}
+                                </td>
+
+                                <td style="min-width: 220px;">
+
+                                    {% if categoria.limite_mensal == None %}
+
+                                        <span class="badge bg-secondary">
+                                            Sem limite
+                                        </span>
+
+                                    {% else %}
+
+                                        {% if categoria.gasto_mes > categoria.limite_mensal %}
+
+                                            <span class="badge bg-danger">
+                                                Limite ultrapassado
+                                            </span>
+
+                                        {% elif categoria.gasto_mes == categoria.limite_mensal %}
+
+                                            <span class="badge bg-danger">
+                                                Limite atingido
+                                            </span>
+
+                                        {% elif categoria.porcentagem >= 80 %}
+
+                                            <span class="badge bg-warning text-dark">
+                                                Próximo do limite
+                                            </span>
+
+                                        {% else %}
+
+                                            <span class="badge bg-success">
+                                                Dentro do limite
+                                            </span>
+
+                                        {% endif %}
+
+                                        <div class="progress mt-2" style="height: 10px;">
+
+                                            <div class="progress-bar bg-{{ categoria.cor_progresso }}"
+                                                 role="progressbar"
+                                                 style="width: {% if categoria.porcentagem > 100 %}100{% else %}{{ categoria.porcentagem|stringformat:'.0f' }}{% endif %}%;">
+                                            </div>
+
+                                        </div>
+
+                                        <small class="text-muted">
+                                            {{ categoria.porcentagem|floatformat:1 }}% utilizado
+                                        </small>
+
+                                    {% endif %}
+
+                                </td>
+
+                                <td>
+
+                                    <form method="post"
+                                          action="{% url 'excluir_categoria' categoria.id %}">
+
+                                        {% csrf_token %}
+
+                                        <button type="submit"
+                                                class="btn btn-danger btn-sm"
+                                                onclick="return confirm('Deseja excluir esta categoria?')">
+                                            Excluir
+                                        </button>
+
+                                    </form>
+
+                                </td>
+
+                            </tr>
+
+                            {% empty %}
+
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-4">
+                                    Nenhuma categoria cadastrada.
+                                </td>
+                            </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
         </div>
 
     </main>

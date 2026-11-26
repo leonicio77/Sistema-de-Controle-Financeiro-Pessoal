@@ -2,11 +2,14 @@
 from django.contrib import admin
 from django.urls import path
 from django.contrib.auth import views as auth_views
+from django.views.generic.base import RedirectView
 from app import views
-
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+
+    # Redireciona a página inicial para o login
+    path('', RedirectView.as_view(pattern_name='login', permanent=False)),
 
     path('cadastro/', views.cadastro, name='cadastro'),
 
@@ -46,7 +49,6 @@ urlpatterns = [
         name='excluir_lancamento'
     ),
 
-    # RF16 - Contas a pagar e receber
     path('contas/', views.contas, name='contas'),
 
     path(
